@@ -17,7 +17,7 @@ EcoSphere is a full-stack **ESG (Environmental, Social & Governance) Management 
 
 ### 🔗 Database Design (Mermaid)
 
-https://mermaid.ai/app/projects/ae941aa2-5134-4220-a3f9-0a886cb9d998/diagrams/849bb037-9903-4113-93da-4cee93845917/version/v0.1/edit?shouldShowPopup=true&entryPoint=Dashboard
+[https://mermaid.ai/app/projects/ae941aa2-5134-4220-a3f9-0a886cb9d998/diagrams/849bb037-9903-4113-93da-4cee93845917/version/v0.1/edit?shouldShowPopup=true&entryPoint=Dashboard](https://mermaid.ai/view/849bb037-9903-4113-93da-4cee93845917)
 
 ---
 
