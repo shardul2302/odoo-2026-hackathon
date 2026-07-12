@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Layers3, CheckCircle2, CircleOff } from "lucide-react";
+import { Plus, Layers3, CheckCircle2, CircleOff, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { categoriesApi } from "@/lib/api";
 import {
@@ -20,13 +20,15 @@ export default function Categories() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({ name: "", description: "", isActive: true });
 
   const fetchCategories = async () => {
     setLoading(true);
     try {
       const { data } = await categoriesApi.getAll();
-      setCategories(data.data || []);
+      const items = Array.isArray(data?.data) ? data.data : Array.isArray(data?.data?.data) ? data.data.data : [];
+      setCategories(items);
     } catch {
       toast.error("Failed to load categories");
     } finally {
@@ -38,18 +40,48 @@ export default function Categories() {
     fetchCategories();
   }, []);
 
+  const resetForm = () => {
+    setEditingId(null);
+    setForm({ name: "", description: "", isActive: true });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await categoriesApi.create(form);
-      toast.success("Category created");
-      setForm({ name: "", description: "", isActive: true });
+      if (editingId) {
+        await categoriesApi.update(editingId, form);
+        toast.success("Category updated");
+      } else {
+        await categoriesApi.create(form);
+        toast.success("Category created");
+      }
+      resetForm();
       fetchCategories();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Unable to create category");
+      toast.error(error?.response?.data?.message || "Unable to save category");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleEdit = (category) => {
+    setEditingId(category._id);
+    setForm({
+      name: category.name || "",
+      description: category.description || "",
+      isActive: Boolean(category.isActive),
+    });
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this category?")) return;
+    try {
+      await categoriesApi.remove(id);
+      toast.success("Category deleted");
+      fetchCategories();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Unable to delete category");
     }
   };
 
@@ -88,10 +120,15 @@ export default function Categories() {
               />
               <span className="text-sm">Active</span>
             </div>
-            <div className="md:col-span-3">
+            <div className="md:col-span-3 flex items-center gap-2">
               <Button type="submit" disabled={submitting}>
-                <Plus className="mr-2 size-4" /> {submitting ? "Saving..." : "Add Category"}
+                <Plus className="mr-2 size-4" /> {submitting ? "Saving..." : editingId ? "Update Category" : "Add Category"}
               </Button>
+              {editingId ? (
+                <Button type="button" variant="outline" onClick={resetForm}>
+                  Cancel
+                </Button>
+              ) : null}
             </div>
           </form>
         </CardContent>
@@ -119,6 +156,14 @@ export default function Categories() {
                       </Badge>
                     </div>
                   </CardHeader>
+                  <CardContent className="flex items-center justify-end gap-2">
+                    <Button type="button" variant="outline" size="icon" onClick={() => handleEdit(category)}>
+                      <Pencil className="size-4" />
+                    </Button>
+                    <Button type="button" variant="destructive" size="icon" onClick={() => handleDelete(category._id)}>
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </CardContent>
                 </Card>
               ))
             )}

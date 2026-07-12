@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Flame, CheckCircle2, CircleOff } from "lucide-react";
+import { Plus, Flame, CheckCircle2, CircleOff, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { categoriesApi, emissionFactorsApi } from "@/lib/api";
 import {
@@ -21,6 +21,7 @@ export default function EmissionFactors() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({ name: "", category: "", unit: "", factor: "", description: "", isActive: true });
 
   const fetchData = async () => {
@@ -30,8 +31,10 @@ export default function EmissionFactors() {
         emissionFactorsApi.getAll(),
         categoriesApi.getAll(),
       ]);
-      setFactors(factorsRes.data.data || []);
-      setCategories(categoriesRes.data.data || []);
+      const factorsList = Array.isArray(factorsRes?.data?.data) ? factorsRes.data.data : Array.isArray(factorsRes?.data?.data?.data) ? factorsRes.data.data.data : [];
+      const categoriesList = Array.isArray(categoriesRes?.data?.data) ? categoriesRes.data.data : Array.isArray(categoriesRes?.data?.data?.data) ? categoriesRes.data.data.data : [];
+      setFactors(factorsList);
+      setCategories(categoriesList);
     } catch {
       toast.error("Failed to load ESG factors");
     } finally {
@@ -43,21 +46,55 @@ export default function EmissionFactors() {
     fetchData();
   }, []);
 
+  const resetForm = () => {
+    setEditingId(null);
+    setForm({ name: "", category: "", unit: "", factor: "", description: "", isActive: true });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await emissionFactorsApi.create({
+      const payload = {
         ...form,
         factor: Number(form.factor),
-      });
-      toast.success("Emission factor created");
-      setForm({ name: "", category: "", unit: "", factor: "", description: "", isActive: true });
+      };
+      if (editingId) {
+        await emissionFactorsApi.update(editingId, payload);
+        toast.success("Emission factor updated");
+      } else {
+        await emissionFactorsApi.create(payload);
+        toast.success("Emission factor created");
+      }
+      resetForm();
       fetchData();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Unable to create emission factor");
+      toast.error(error?.response?.data?.message || "Unable to save emission factor");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleEdit = (factor) => {
+    setEditingId(factor._id);
+    setForm({
+      name: factor.name || "",
+      category: factor.category?._id || factor.category || "",
+      unit: factor.unit || "",
+      factor: factor.factor ?? "",
+      description: factor.description || "",
+      isActive: Boolean(factor.isActive),
+    });
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this emission factor?")) return;
+    try {
+      await emissionFactorsApi.remove(id);
+      toast.success("Emission factor deleted");
+      fetchData();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Unable to delete emission factor");
     }
   };
 
@@ -106,10 +143,15 @@ export default function EmissionFactors() {
               <Checkbox checked={form.isActive} onCheckedChange={(checked) => setForm((prev) => ({ ...prev, isActive: Boolean(checked) }))} />
               <span className="text-sm">Active</span>
             </div>
-            <div className="xl:col-span-4">
+            <div className="xl:col-span-4 flex items-center gap-2">
               <Button type="submit" disabled={submitting}>
-                <Plus className="mr-2 size-4" /> {submitting ? "Saving..." : "Add Factor"}
+                <Plus className="mr-2 size-4" /> {submitting ? "Saving..." : editingId ? "Update Factor" : "Add Factor"}
               </Button>
+              {editingId ? (
+                <Button type="button" variant="outline" onClick={resetForm}>
+                  Cancel
+                </Button>
+              ) : null}
             </div>
           </form>
         </CardContent>
@@ -137,9 +179,17 @@ export default function EmissionFactors() {
                       </Badge>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-1 text-sm text-muted-foreground">
+                  <CardContent className="space-y-2 text-sm text-muted-foreground">
                     <p className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">Unit: {factor.unit}</p>
                     <p className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">Factor: {factor.factor}</p>
+                    <div className="flex items-center justify-end gap-2 pt-1">
+                      <Button type="button" variant="outline" size="icon" onClick={() => handleEdit(factor)}>
+                        <Pencil className="size-4" />
+                      </Button>
+                      <Button type="button" variant="destructive" size="icon" onClick={() => handleDelete(factor._id)}>
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))

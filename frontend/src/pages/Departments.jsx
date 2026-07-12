@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Building2, CheckCircle2, CircleOff } from "lucide-react";
+import { Plus, Building2, CheckCircle2, CircleOff, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { departmentsApi } from "@/lib/api";
 import {
@@ -21,13 +21,15 @@ export default function Departments() {
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({ name: "", description: "", isActive: true });
 
   const fetchDepartments = async () => {
     setLoading(true);
     try {
       const { data } = await departmentsApi.getAll();
-      setDepartments(data.data || []);
+      const items = Array.isArray(data?.data) ? data.data : Array.isArray(data?.data?.data) ? data.data.data : [];
+      setDepartments(items);
     } catch {
       toast.error("Failed to load departments");
     } finally {
@@ -39,18 +41,48 @@ export default function Departments() {
     fetchDepartments();
   }, []);
 
+  const resetForm = () => {
+    setEditingId(null);
+    setForm({ name: "", description: "", isActive: true });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await departmentsApi.create(form);
-      toast.success("Department created");
-      setForm({ name: "", description: "", isActive: true });
+      if (editingId) {
+        await departmentsApi.update(editingId, form);
+        toast.success("Department updated");
+      } else {
+        await departmentsApi.create(form);
+        toast.success("Department created");
+      }
+      resetForm();
       fetchDepartments();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Unable to create department");
+      toast.error(error?.response?.data?.message || "Unable to save department");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleEdit = (department) => {
+    setEditingId(department._id);
+    setForm({
+      name: department.name || "",
+      description: department.description || "",
+      isActive: Boolean(department.isActive),
+    });
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this department?")) return;
+    try {
+      await departmentsApi.remove(id);
+      toast.success("Department deleted");
+      fetchDepartments();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Unable to delete department");
     }
   };
 
@@ -89,10 +121,15 @@ export default function Departments() {
               />
               <span className="text-sm">Active</span>
             </div>
-            <div className="md:col-span-3">
+            <div className="md:col-span-3 flex items-center gap-2">
               <Button type="submit" disabled={submitting}>
-                <Plus className="mr-2 size-4" /> {submitting ? "Saving..." : "Add Department"}
+                <Plus className="mr-2 size-4" /> {submitting ? "Saving..." : editingId ? "Update Department" : "Add Department"}
               </Button>
+              {editingId ? (
+                <Button type="button" variant="outline" onClick={resetForm}>
+                  Cancel
+                </Button>
+              ) : null}
             </div>
           </form>
         </CardContent>
@@ -120,6 +157,14 @@ export default function Departments() {
                       </Badge>
                     </div>
                   </CardHeader>
+                  <CardContent className="flex items-center justify-end gap-2">
+                    <Button type="button" variant="outline" size="icon" onClick={() => handleEdit(department)}>
+                      <Pencil className="size-4" />
+                    </Button>
+                    <Button type="button" variant="destructive" size="icon" onClick={() => handleDelete(department._id)}>
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </CardContent>
                 </Card>
               ))
             )}

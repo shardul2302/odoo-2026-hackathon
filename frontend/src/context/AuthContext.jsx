@@ -1,144 +1,84 @@
 import { createContext, useState } from "react";
 import { authApi } from "@/lib/api";
 
-
 export const AuthContext = createContext();
 
-// Demo credentials for local UI testing only.
-const DEMO_USERS = [
-  {
-    _id: "demo-admin",
-    name: "EcoSphere Admin",
-    email: "admin@ecosphere.com",
-    password: "Admin123!",
-    role: "Admin",
-    department: { name: "Operations" },
-  },
-  {
-    _id: "demo-employee",
-    name: "EcoSphere Employee",
-    email: "employee@ecosphere.com",
-    password: "Employee123!",
-    role: "Employee",
-    department: { name: "People & Culture" },
-  },
-  {
-    _id: "demo-manager",
-    name: "EcoSphere Manager",
-    email: "manager@ecosphere.com",
-    password: "Manager123!",
-    role: "Manager",
-    department: { name: "Finance" },
-  },
-];
+const getStoredUser = () => {
+  if (typeof window === "undefined") return null;
 
-const getDemoUser = (email, password) => {
-  const normalizedEmail = email?.trim().toLowerCase();
-  return DEMO_USERS.find(
-    (user) => user.email.toLowerCase() === normalizedEmail && user.password === password
-  );
+  const storedUser = localStorage.getItem("ecosphereUser");
+
+  if (!storedUser) return null;
+
+  try {
+    return JSON.parse(storedUser);
+  } catch {
+    return null;
+  }
 };
 
-export const AuthProvider = ({children}) => {
-
- const [user,setUser] = useState(() => {
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(() => {
     if (typeof window === "undefined") return null;
 
     const storedToken = localStorage.getItem("accessToken");
-    const storedUser = localStorage.getItem("demoUser");
+    const storedUser = getStoredUser();
 
-    if (storedToken || storedUser) {
-      try {
-        return storedUser ? JSON.parse(storedUser) : DEMO_USERS[0];
-      } catch {
-        return DEMO_USERS[0];
-      }
+    if (storedToken && storedUser) {
+      return storedUser;
     }
 
     return null;
- });
+  });
 
+  const login = async (email, password) => {
+    const response = await authApi.login({ email, password });
 
- const login = async(email,password)=>{
+    const payload = response?.data?.data ?? response?.data;
+    const userData = payload?.user ?? payload;
+    const token = payload?.token;
 
-    const demoUser = getDemoUser(email, password);
-
-    if (demoUser) {
-      localStorage.setItem("accessToken", `demo-${demoUser.role.toLowerCase()}-token`);
-      localStorage.setItem("demoUser", JSON.stringify(demoUser));
-      setUser(demoUser);
-      return demoUser;
+    if (!userData || !token) {
+      throw new Error("Invalid login response from server");
     }
 
-    try {
-      const response = await authApi.login({
-          email,
-          password
-      });
+    localStorage.setItem("accessToken", token);
+    localStorage.setItem("ecosphereUser", JSON.stringify(userData));
+    setUser(userData);
 
-      const payload = response?.data?.data ?? response?.data;
-      const userData = payload?.user ?? payload;
-      const token = payload?.token;
+    return userData;
+  };
 
-      if (!userData || !token) {
-        throw new Error("Invalid login response from server");
-      }
-
-      localStorage.setItem(
-          "accessToken",
-          token
-      );
-
-      setUser(userData);
-
-      return userData;
-    } catch (error) {
-      throw error;
-    }
-
- };
-
-
- const register = async(payload)=>{
-
-    const response =
-       await authApi.register(payload);
-
+  const register = async (payload) => {
+    const response = await authApi.register(payload);
     return response?.data ?? response;
+  };
 
- };
-
-
- const logout = async()=>{
-
+  const logout = async () => {
     try {
-        await authApi.logout();
+      await authApi.logout();
     } catch (error) {
-        console.warn("Logout request failed", error);
+      console.warn("Logout request failed", error);
     }
 
-    localStorage.removeItem(
-       "accessToken"
-    );
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("ecosphereUser");
     localStorage.removeItem("demoUser");
 
     setUser(null);
+  };
 
- };
-
-
- return (
+  return (
     <AuthContext.Provider
       value={{
         user,
         loading: false,
         login,
         register,
-        logout
+        logout,
       }}
     >
       {children}
     </AuthContext.Provider>
- );
-
+  );
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Leaf, TrendingUp, CheckCircle2 } from "lucide-react";
+import { Plus, Leaf, TrendingUp, CheckCircle2, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { carbonTransactionsApi, categoriesApi } from "@/lib/api";
 import {
@@ -19,6 +19,7 @@ export default function CarbonTransactions() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({ category: "", activity: "", quantity: "", unit: "" });
 
   const fetchData = async () => {
@@ -28,8 +29,10 @@ export default function CarbonTransactions() {
         carbonTransactionsApi.getAll(),
         categoriesApi.getAll(),
       ]);
-      setTransactions(transactionsRes.data.data || []);
-      setCategories(categoriesRes.data.data || []);
+      const transactionsList = Array.isArray(transactionsRes?.data?.data) ? transactionsRes.data.data : Array.isArray(transactionsRes?.data?.data?.data) ? transactionsRes.data.data.data : [];
+      const categoriesList = Array.isArray(categoriesRes?.data?.data) ? categoriesRes.data.data : Array.isArray(categoriesRes?.data?.data?.data) ? categoriesRes.data.data.data : [];
+      setTransactions(transactionsList);
+      setCategories(categoriesList);
     } catch {
       toast.error("Failed to load carbon transactions");
     } finally {
@@ -41,21 +44,53 @@ export default function CarbonTransactions() {
     fetchData();
   }, []);
 
+  const resetForm = () => {
+    setEditingId(null);
+    setForm({ category: "", activity: "", quantity: "", unit: "" });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await carbonTransactionsApi.create({
+      const payload = {
         ...form,
         quantity: Number(form.quantity),
-      });
-      toast.success("Carbon transaction recorded");
-      setForm({ category: "", activity: "", quantity: "", unit: "" });
+      };
+      if (editingId) {
+        await carbonTransactionsApi.update(editingId, payload);
+        toast.success("Carbon transaction updated");
+      } else {
+        await carbonTransactionsApi.create(payload);
+        toast.success("Carbon transaction recorded");
+      }
+      resetForm();
       fetchData();
     } catch (error) {
       toast.error(error?.response?.data?.message || "Unable to save transaction");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleEdit = (transaction) => {
+    setEditingId(transaction._id);
+    setForm({
+      category: transaction.category?._id || transaction.category || "",
+      activity: transaction.activity || "",
+      quantity: transaction.quantity ?? "",
+      unit: transaction.unit || "",
+    });
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this carbon transaction?")) return;
+    try {
+      await carbonTransactionsApi.remove(id);
+      toast.success("Carbon transaction deleted");
+      fetchData();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Unable to delete transaction");
     }
   };
 
@@ -91,10 +126,15 @@ export default function CarbonTransactions() {
               <Label>Unit</Label>
               <Input value={form.unit} onChange={(e) => setForm((prev) => ({ ...prev, unit: e.target.value }))} placeholder="kWh" required />
             </div>
-            <div className="xl:col-span-4">
+            <div className="xl:col-span-4 flex items-center gap-2">
               <Button type="submit" disabled={submitting}>
-                <Plus className="mr-2 size-4" /> {submitting ? "Saving..." : "Record Transaction"}
+                <Plus className="mr-2 size-4" /> {submitting ? "Saving..." : editingId ? "Update Transaction" : "Record Transaction"}
               </Button>
+              {editingId ? (
+                <Button type="button" variant="outline" onClick={resetForm}>
+                  Cancel
+                </Button>
+              ) : null}
             </div>
           </form>
         </CardContent>
@@ -118,6 +158,14 @@ export default function CarbonTransactions() {
                     <div className="flex flex-wrap items-center gap-3 text-sm">
                       <span className="flex items-center gap-2 rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700"><TrendingUp className="size-4" /> {transaction.quantity} {transaction.unit}</span>
                       <span className="flex items-center gap-2 rounded-full bg-amber-50 px-2.5 py-1 text-amber-700"><CheckCircle2 className="size-4" /> {transaction.carbonAmount?.toFixed(2)} kg CO₂e</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button type="button" variant="outline" size="icon" onClick={() => handleEdit(transaction)}>
+                        <Pencil className="size-4" />
+                      </Button>
+                      <Button type="button" variant="destructive" size="icon" onClick={() => handleDelete(transaction._id)}>
+                        <Trash2 className="size-4" />
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
