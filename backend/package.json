@@ -1,0 +1,27 @@
+{
+  "name": "ecosphere",
+  "version": "1.0.0",
+  "description": " this is an bakcend of EcoSphere ESG ManagementPlatform ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shardul2302/odoo-2026-hackathon.git"
+  },
+  "author": "shardul mane",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shardul2302/odoo-2026-hackathon/issues"
+  },
+  "homepage": "https://github.com/shardul2302/odoo-2026-hackathon#readme",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "eslint": "^10.7.0",
+    "express": "^5.2.1",
+    "mongoose": "^9.7.4",
+    "nodemon": "^3.1.14",
+    "prettier": "^3.9.5"
+  }
+}
