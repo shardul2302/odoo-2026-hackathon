@@ -2,5 +2,5 @@
 Repository for the Odoo Hackathon 2026 challenge
 ## Team
 
-* **Team Lead:** Shardul Mane
-* **Member:** Anshika Sharma
+* **Team Member:** Shardul Mane(TL)
+* **Team Member:** Anshika Sharma
