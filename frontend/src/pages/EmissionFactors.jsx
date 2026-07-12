@@ -100,7 +100,7 @@ export default function EmissionFactors() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-0 bg-white/80 shadow-[0_20px_45px_-28px_rgba(15,23,42,0.35)] backdrop-blur dark:bg-slate-900/70">
+      <Card className="border-0 bg-card shadow-[0_20px_45px_-28px_rgba(15,23,42,0.35)] backdrop-blur">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Flame className="size-4 text-primary" /> Emission Factors
@@ -166,7 +166,7 @@ export default function EmissionFactors() {
               </div>
             ) : (
               factors.map((factor) => (
-                <Card key={factor._id} className="border-0 bg-white/80 shadow-[0_20px_45px_-28px_rgba(15,23,42,0.35)] backdrop-blur dark:bg-slate-900/70">
+                <Card key={factor._id} className="border-0 bg-card shadow-[0_20px_45px_-28px_rgba(15,23,42,0.35)] backdrop-blur">
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-3">
                       <div>

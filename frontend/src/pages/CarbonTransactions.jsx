@@ -96,7 +96,7 @@ export default function CarbonTransactions() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-0 bg-white/80 shadow-[0_20px_45px_-28px_rgba(15,23,42,0.35)] backdrop-blur dark:bg-slate-900/70">
+      <Card className="border-0 bg-card shadow-[0_20px_45px_-28px_rgba(15,23,42,0.35)] backdrop-blur">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Leaf className="size-4 text-primary" /> Carbon Accounting
@@ -149,7 +149,7 @@ export default function CarbonTransactions() {
               </div>
             ) : (
               transactions.map((transaction) => (
-                <Card key={transaction._id} className="border-0 bg-white/80 shadow-[0_20px_45px_-28px_rgba(15,23,42,0.35)] backdrop-blur dark:bg-slate-900/70">
+                <Card key={transaction._id} className="border-0 bg-card shadow-[0_20px_45px_-28px_rgba(15,23,42,0.35)] backdrop-blur">
                   <CardContent className="flex flex-col gap-3 py-4 md:flex-row md:items-center md:justify-between">
                     <div>
                       <p className="font-semibold">{transaction.activity}</p>
