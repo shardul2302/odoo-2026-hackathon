@@ -1,22 +1,46 @@
 # EcoSphere ESG Management Platform
 
-EcoSphere is a full-stack ESG management platform built for the Odoo Hackathon 2026. It includes a React + Vite frontend, an Express + MongoDB backend, and seeded demo data for departments, categories, emission factors, carbon transactions, and users.
+EcoSphere is a full-stack ESG Management Platform built for the **Odoo Hackathon 2026**. It helps organizations monitor and manage Environmental, Social, and Governance (ESG) initiatives through a modern dashboard with secure authentication, carbon tracking, and master data management.
 
-## Project Structure
+---
 
-- frontend/ - React admin dashboard UI
-- backend/ - Express API and MongoDB models/controllers
-- backend/src/seed/seed.js - Demo data seeding script
+# Project Structure
 
-## Tech Stack
+```
+frontend/                 # React + Vite Frontend
+backend/                  # Express + MongoDB Backend
+demoImages/               # Application Screenshots
+```
 
-- Frontend: React, Vite, Tailwind-style UI components, React Router
-- Backend: Node.js, Express, MongoDB, Mongoose, JWT authentication
-- Utilities: Axios, Sonner, Lucide icons, Recharts
+---
 
-## Getting Started
+# Tech Stack
 
-### 1. Backend
+### Frontend
+
+- React
+- Vite
+- React Router
+- Axios
+- Tailwind CSS
+- shadcn/ui
+- Lucide React
+- Sonner
+
+### Backend
+
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- JWT Authentication
+- bcrypt
+
+---
+
+# Getting Started
+
+## Backend
 
 ```bash
 cd backend
@@ -24,9 +48,15 @@ npm install
 npm run dev
 ```
 
-The backend runs on http://localhost:5000.
+Backend runs on:
 
-### 2. Frontend
+```
+http://localhost:5000
+```
+
+---
+
+## Frontend
 
 ```bash
 cd frontend
@@ -34,26 +64,103 @@ npm install
 npm run dev
 ```
 
-The frontend runs on http://localhost:3002 (or the next available Vite port).
+Frontend runs on:
 
-## Demo Credentials
+```
+http://localhost:5173
+```
 
-Use these demo accounts to test the application:
+---
 
-- Admin: admin@ecosphere.com / Admin123!
-- Employee: employee@ecosphere.com / Employee123!
-- Manager: manager@ecosphere.com / Manager123!
+# Demo Credentials
 
-## Seed Data
+### Admin
 
-To populate the database with demo ESG records:
+```
+Email    : admin@ecosphere.com
+Password : Admin123!
+```
+
+### Manager
+
+```
+Email    : manager@ecosphere.com
+Password : Manager123!
+```
+
+### Employee
+
+```
+Email    : employee@ecosphere.com
+Password : Employee123!
+```
+
+---
+
+# Seed Demo Data
 
 ```bash
 cd backend
 node src/seed/seed.js
 ```
 
-## Team
+---
 
-- Team Member: Shardul Mane (TL)
-- Team Member: Anshika Sharma
+# Demo Images
+
+## Login Page
+
+![Login](demoImages/Screenshot%202026-07-12%20181007.png)
+
+---
+
+## Register Page
+
+![Register](demoImages/Screenshot%202026-07-12%20181950.png)
+
+---
+
+## Dashboard
+
+![Dashboard](demoImages/Screenshot%202026-07-12%20182030.png)
+
+---
+
+## Departments
+
+![Departments](demoImages/Screenshot%202026-07-12%20182043.png)
+
+---
+
+## Categories
+
+![Categories](demoImages/Screenshot%202026-07-12%20182058.png)
+
+---
+
+## Emission Factors
+
+![Emission Factors](demoImages/Screenshot%202026-07-12%20182111.png)
+
+---
+
+## Carbon Transactions
+
+![Carbon Transactions](demoImages/Screenshot%202026-07-12%20182453.png)
+
+---
+
+## Responsive UI
+
+![Responsive](demoImages/Screenshot%202026-07-12%20182823.png)
+
+---
+
+# Team
+
+- **Shardul Mane** — Team Lead
+- **Anshika Sharma** — Team Member
+
+---
+
+Built with ❤️ for **Odoo Hackathon 2026**
