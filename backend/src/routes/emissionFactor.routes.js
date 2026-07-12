@@ -3,13 +3,13 @@ import { Router } from "express";
 
 import {
 
-    createCategory,
-    getCategories,
-    getCategoryById,
-    updateCategory,
-    deleteCategory
+    createEmissionFactor,
+    getEmissionFactors,
+    getEmissionFactorById,
+    updateEmissionFactor,
+    deleteEmissionFactor
 
-} from "../controllers/category.controller.js";
+} from "../controllers/emissionFactor.controller.js";
 
 
 import authMiddleware from "../middlewares/auth.middleware.js";
@@ -19,10 +19,10 @@ import validate from "../middlewares/validate.middleware.js";
 
 import {
 
-    createCategoryValidator,
-    updateCategoryValidator
+    createEmissionFactorValidator,
+    updateEmissionFactorValidator
 
-} from "../validators/category.validator.js";
+} from "../validators/emissionFactor.validator.js";
 
 
 
@@ -34,38 +34,38 @@ router.use(authMiddleware);
 
 
 
-// Admin Create
+// Admin create
 router.post(
 
     "/",
 
     roleMiddleware("Admin"),
 
-    validate(createCategoryValidator),
+    validate(createEmissionFactorValidator),
 
-    createCategory
+    createEmissionFactor
 
 );
 
 
 
-// Get All
+// Get all
 router.get(
 
     "/",
 
-    getCategories
+    getEmissionFactors
 
 );
 
 
 
-// Get One
+// Get one
 router.get(
 
     "/:id",
 
-    getCategoryById
+    getEmissionFactorById
 
 );
 
@@ -78,9 +78,9 @@ router.patch(
 
     roleMiddleware("Admin"),
 
-    validate(updateCategoryValidator),
+    validate(updateEmissionFactorValidator),
 
-    updateCategory
+    updateEmissionFactor
 
 );
 
@@ -93,7 +93,7 @@ router.delete(
 
     roleMiddleware("Admin"),
 
-    deleteCategory
+    deleteEmissionFactor
 
 );
 

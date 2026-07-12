@@ -1,4 +1,3 @@
-
 const calculateCO2 = (quantity, emissionFactor) => {
     const factor =
         typeof emissionFactor === "number"

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": " this is an bakcend of EcoSphere ESG ManagementPlatform ",
   "main": "index.js",
-   "scripts": {
+  "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js"
   },

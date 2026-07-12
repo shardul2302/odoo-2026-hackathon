@@ -1,16 +1,37 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
+import Login from "./pages/Auth/Login";
+import Register from "./pages/Auth/Register";
+
 function App() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-green-100">
-      <div className="rounded-2xl border border-emerald-200 bg-white px-10 py-8 shadow-xl">
-        <h1 className="text-center text-5xl font-extrabold tracking-tight text-emerald-700">
-          🌿 EcoSphere
-        </h1>
+    <BrowserRouter>
+      <Routes>
+        {/* Default redirect */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
-        <p className="mt-3 text-center text-lg font-medium text-slate-600">
-          ESG Management Platform
-        </p>
-      </div>
-    </main>
+        {/* Auth Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* 404 */}
+        <Route
+          path="*"
+          element={
+            <div className="flex min-h-screen items-center justify-center bg-slate-100">
+              <div className="rounded-xl bg-white p-10 shadow-lg text-center">
+                <h1 className="text-6xl font-bold text-emerald-600">
+                  404
+                </h1>
+                <p className="mt-2 text-gray-600">
+                  Page Not Found
+                </p>
+              </div>
+            </div>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
